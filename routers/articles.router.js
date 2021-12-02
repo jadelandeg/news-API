@@ -5,9 +5,11 @@ const {
   getArticles,
   getComments,
   postComment,
+  patchArticleBody,
 } = require("../controllers/articles.controller");
 
 articlesRouter.route("/:id").get(getArticleByID).patch(updateArticleById);
+articlesRouter.route("/body/:id").patch(patchArticleBody);
 articlesRouter.route("/").get(getArticles);
 articlesRouter
   .route("/:article_id/comments")

@@ -39,7 +39,7 @@ describe("GET /api/topics", () => {
   });
 });
 
-describe.only("GET /api/fskfddlsfkl", () => {
+describe("GET /api/fskfddlsfkl", () => {
   test("404: returns not found", () => {
     return request(app)
       .get("/api/fskfddlsfkl")
@@ -463,11 +463,161 @@ describe("PATCH /api/comments/:comment_id", () => {
       .then((response) => {
         expect(response.body.comment).toEqual({
           body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          comment_id: 1,
           votes: 26,
           author: "butter_bridge",
           article_id: 9,
           created_at: expect.any(String),
         });
+      });
+  });
+  test("400: returns bad request", () => {
+    return request(app)
+      .patch("/api/comments/jade")
+      .send({ inc_votes: 10 })
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("bad request");
+      });
+  });
+  test("404: comment doesn't exist", () => {
+    return request(app)
+      .patch("/api/comments/100000")
+      .send({ inc_votes: 10 })
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("comment doesn't exist");
+      });
+  });
+  test("400 request must be a number", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: "jade" })
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("request must be a number");
+      });
+  });
+  test("200: should return unchanged comment", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({})
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comment).toEqual({
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          comment_id: 1,
+          votes: 16,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: expect.any(String),
+        });
+      });
+  });
+});
+
+describe("PATCH : /api/articles/body/:article_id", () => {
+  test("200: should return updated article", () => {
+    return request(app)
+      .patch("/api/articles/body/1/")
+      .send({ body: "this is my new body" })
+      .expect(200)
+      .then((response) => {
+        expect(response.body.article).toEqual({
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "this is my new body",
+          created_at: expect.any(String),
+          votes: 100,
+          article_id: 1,
+        });
+      });
+  });
+  test("200: returns original article if sent empty request", () => {
+    return request(app)
+      .patch("/api/articles/body/1/")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.article).toEqual({
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: expect.any(String),
+          votes: 100,
+          article_id: 1,
+        });
+      });
+  });
+  test("400: should return bad request", () => {
+    return request(app)
+      .patch("/api/articles/body/jade/")
+      .send({ body: "this is my new body" })
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("bad request");
+      });
+  });
+  test("404: should return article doesn't exist", () => {
+    return request(app)
+      .patch("/api/articles/body/100000/")
+      .send({ body: "this is my new body" })
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("article doesn't exist");
+      });
+  });
+});
+
+describe.only("PATCH /api/comments/body/:comment_id", () => {
+  test("200: should return updated comment", () => {
+    return request(app)
+      .patch("/api/comments/body/1")
+      .send({ body: "this is my new body" })
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comment).toEqual({
+          body: "this is my new body",
+          comment_id: 1,
+          votes: 16,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("200: returns original article if sent empty request", () => {
+    return request(app)
+      .patch("/api/comments/body/1")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comment).toEqual({
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          comment_id: 1,
+          votes: 16,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("400: should return bad request", () => {
+    return request(app)
+      .patch("/api/comments/body/jade")
+      .send({ body: "this is my new body" })
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("bad request");
+      });
+  });
+  test("404: should return comment doesn't exist", () => {
+    return request(app)
+      .patch("/api/comments/body/100000")
+      .send({ body: "this is my new body" })
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("comment doesn't exist");
       });
   });
 });

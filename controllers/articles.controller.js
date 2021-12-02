@@ -5,13 +5,13 @@ const {
   fetchArticles,
   fetchComments,
   newComment,
+  updateArticleBody,
 } = require("../models/articles.model");
 
 const { checkIfTopicExists } = require("../models/topics.model");
 const { checkIfUserExists } = require("../models/users.model");
 
 exports.getArticleByID = (req, res, next) => {
-  console.log("in controller");
   const articleID = req.params.id;
   Promise.all([fetchArticleByID(articleID), checkIfArticleExists(articleID)])
     .then(([result]) => {
@@ -47,7 +47,6 @@ exports.getArticles = (req, res, next) => {
   const queryParams = req.query;
   fetchArticles(queryParams)
     .then((response) => {
-      console.log(response);
       res.status(200).send({ articles: response });
     })
     .catch((err) => {
@@ -74,12 +73,22 @@ exports.postComment = (req, res, next) => {
   } else {
     newComment(ID, body)
       .then((response) => {
-        console.log(response);
         res.status(201).send({ comment: response });
       })
       .catch((err) => {
-        console.log(err);
         next(err);
       });
   }
+};
+
+exports.patchArticleBody = (req, res, next) => {
+  const ID = req.params.id;
+  const articleBody = req.body.body;
+  Promise.all([updateArticleBody(ID, articleBody), checkIfArticleExists(ID)])
+    .then(([response]) => {
+      res.status(200).send({ article: response });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };

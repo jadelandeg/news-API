@@ -115,3 +115,22 @@ exports.newComment = (ID, comment) => {
       return response.rows[0];
     });
 };
+
+exports.updateArticleBody = (ID, articleBody) => {
+  if (!articleBody) {
+    return db
+      .query(`SELECT * from articles WHERE article_id = $1`, [ID])
+      .then((response) => {
+        return response.rows[0];
+      });
+  } else {
+    return db
+      .query(`UPDATE articles SET body=$1 WHERE article_id = $2 RETURNING*`, [
+        articleBody,
+        ID,
+      ])
+      .then((response) => {
+        return response.rows[0];
+      });
+  }
+};
