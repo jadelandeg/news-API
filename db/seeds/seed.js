@@ -24,29 +24,29 @@ const seed = (data) => {
     })
     .then(() => {
       return db.query(`CREATE TABLE users (
-      username VARCHAR(100) PRIMARY KEY NOT NULL UNIQUE,
-      avatar_url VARCHAR,
+      username VARCHAR(100) PRIMARY KEY UNIQUE NOT NULL,
+      avatar_url VARCHAR NOT NULL,
       name VARCHAR(100) NOT NULL
     )`);
     })
     .then(() => {
       return db.query(`CREATE TABLE articles (
-      article_id SERIAL PRIMARY KEY,
+      article_id SERIAL PRIMARY KEY NOT NULL,
       title VARCHAR(100) NOT NULL,
-      body VARCHAR,
-      votes INTEGER DEFAULT 0,
-      topic VARCHAR REFERENCES topics(slug), 
-      author VARCHAR REFERENCES users(username),
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)`);
+      body VARCHAR NOT NULL,
+      votes INTEGER DEFAULT 0 NOT NULL,
+      topic VARCHAR REFERENCES topics(slug) NOT NULL, 
+      author VARCHAR REFERENCES users(username) NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL)`);
     })
     .then(() => {
       return db.query(`CREATE TABLE comments (
-        comment_id SERIAL PRIMARY KEY,
-        author VARCHAR REFERENCES users(username),
-        article_id INTEGER REFERENCES articles(article_id),
-        votes INTEGER DEFAULT 0,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        body VARCHAR
+        comment_id SERIAL PRIMARY KEY NOT NULL,
+        author VARCHAR REFERENCES users(username) NOT NULL,
+        article_id INTEGER REFERENCES articles(article_id) NOT NULL,
+        votes INTEGER DEFAULT 0 NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        body VARCHAR NOT NULL
         
       )`);
     })

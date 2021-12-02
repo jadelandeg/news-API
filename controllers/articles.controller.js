@@ -8,6 +8,7 @@ const {
 } = require("../models/articles.model");
 
 const { checkIfTopicExists } = require("../models/topics.model");
+const { checkIfUserExists } = require("../models/users.model");
 
 exports.getArticleByID = (req, res, next) => {
   console.log("in controller");
@@ -17,7 +18,6 @@ exports.getArticleByID = (req, res, next) => {
       res.status(200).send({ article: result });
     })
     .catch((err) => {
-      console.log(err);
       next(err);
     });
 };
@@ -26,9 +26,7 @@ exports.updateArticleById = (req, res, next) => {
   const articleID = req.params.id;
   const articleVotes = req.body.inc_votes;
 
-  if (!articleVotes) {
-    res.status(400).send({ msg: "request must contain a body" });
-  } else if (typeof articleVotes !== "number") {
+  if (articleVotes && typeof articleVotes !== "number") {
     res.status(400).send({ msg: "request must be a number" });
   }
   {
@@ -49,6 +47,7 @@ exports.getArticles = (req, res, next) => {
   const queryParams = req.query;
   fetchArticles(queryParams)
     .then((response) => {
+      console.log(response);
       res.status(200).send({ articles: response });
     })
     .catch((err) => {
@@ -70,11 +69,12 @@ exports.getComments = (req, res, next) => {
 exports.postComment = (req, res, next) => {
   const ID = req.params.article_id;
   const body = req.body;
-  if (!body.author || !body.body) {
+  if (!body.username || !body.body) {
     res.status(400).send({ msg: "request must contain a body" });
   } else {
     newComment(ID, body)
       .then((response) => {
+        console.log(response);
         res.status(201).send({ comment: response });
       })
       .catch((err) => {

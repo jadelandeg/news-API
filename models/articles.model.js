@@ -1,3 +1,4 @@
+const e = require("express");
 const db = require("../db/connection");
 
 exports.fetchArticleByID = (articleID) => {
@@ -12,7 +13,7 @@ exports.fetchArticleByID = (articleID) => {
       [articleID]
     )
     .then((result) => {
-      return result.rows;
+      return result.rows[0];
     });
 };
 
@@ -27,14 +28,22 @@ exports.checkIfArticleExists = (id) => {
 };
 
 exports.changeArticleById = (id, votes) => {
-  return db
-    .query(
-      `UPDATE articles SET votes= votes + $1 WHERE article_id = $2 RETURNING *`,
-      [votes, id]
-    )
-    .then((response) => {
-      return response.rows[0];
-    });
+  if (!votes) {
+    return db
+      .query(`SELECT * FROM articles WHERE article_id = $1`, [id])
+      .then((response) => {
+        return response.rows[0];
+      });
+  } else {
+    return db
+      .query(
+        `UPDATE articles SET votes= votes + $1 WHERE article_id = $2 RETURNING *`,
+        [votes, id]
+      )
+      .then((response) => {
+        return response.rows[0];
+      });
+  }
 };
 
 exports.fetchArticles = ({ sort_by = "created_at", order = "DESC", topic }) => {
@@ -48,7 +57,7 @@ exports.fetchArticles = ({ sort_by = "created_at", order = "DESC", topic }) => {
       "comment_count",
       "topic",
     ].includes(sort_by) ||
-    !["DESC", "ASC"].includes(order)
+    !["DESC", "ASC", "asc", "desc"].includes(order)
   ) {
     return Promise.reject({ status: 400, msg: "invalid search request" });
   }
@@ -67,7 +76,7 @@ exports.fetchArticles = ({ sort_by = "created_at", order = "DESC", topic }) => {
       });
   } else {
     if (!["cats", "paper", "mitch"].includes(topic)) {
-      return Promise.reject({ status: 400, msg: "invalid search request" });
+      return Promise.reject({ status: 404, msg: "not a topic" });
     } else {
       return db
         .query(
@@ -81,12 +90,6 @@ exports.fetchArticles = ({ sort_by = "created_at", order = "DESC", topic }) => {
           [topic]
         )
         .then((response) => {
-          if (response.rows.length === 0) {
-            return Promise.reject({
-              status: 404,
-              msg: "no articles associated with topic",
-            });
-          }
           return response.rows;
         });
     }
@@ -102,11 +105,11 @@ exports.fetchComments = (ID) => {
 };
 
 exports.newComment = (ID, comment) => {
-  const { author, body } = comment;
+  const { username, body } = comment;
   return db
     .query(
       "INSERT INTO comments (author, body, article_id) VALUES ($1, $2, $3) RETURNING *",
-      [author, body, ID]
+      [username, body, ID]
     )
     .then((response) => {
       return response.rows[0];

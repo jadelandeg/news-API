@@ -7,7 +7,7 @@ const app = require("../app");
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
-describe.only("GET /api/", () => {
+describe("GET /api/", () => {
   test("should return JSON object of endpoints", () => {
     return request(app)
       .get("/api/")
@@ -23,7 +23,11 @@ describe("GET /api/topics", () => {
       .get("/api/topics")
       .expect(200)
       .then((response) => {
-        response.body.topics.map((topic) => {
+        expect(response.body.topics.length > 0).toBe(true);
+        return response;
+      })
+      .then((response) => {
+        response.body.topics.forEach((topic) => {
           expect(topic).toEqual(
             expect.objectContaining({
               slug: expect.any(String),
@@ -53,18 +57,16 @@ describe("GET /api/articles/:id", () => {
       .expect(200)
       .then((response) => {
         expect(response.body).toEqual({
-          article: [
-            {
-              article_id: 1,
-              title: "Living in the shadow of a great man",
-              topic: "mitch",
-              author: "butter_bridge",
-              body: "I find this existence challenging",
-              created_at: expect.any(String),
-              votes: 100,
-              comment_count: "11",
-            },
-          ],
+          article: {
+            article_id: 1,
+            title: "Living in the shadow of a great man",
+            topic: "mitch",
+            author: "butter_bridge",
+            body: "I find this existence challenging",
+            created_at: expect.any(String),
+            votes: 100,
+            comment_count: "11",
+          },
         });
       });
   });
@@ -107,12 +109,22 @@ describe("PATCH /api/articles/:articleid", () => {
         });
       });
   });
-  test("400: returns request must contain a body", () => {
+  test("200: returns unchanged article", () => {
     return request(app)
       .patch("/api/articles/5")
-      .expect(400)
+      .expect(200)
       .then((response) => {
-        expect(response.body.msg).toBe("request must contain a body");
+        expect(response.body).toEqual({
+          article: {
+            article_id: 5,
+            title: "UNCOVERED: catspiracy to bring down democracy",
+            topic: "cats",
+            author: "rogersop",
+            body: "Bastet walks amongst us, and the cats are taking arms!",
+            created_at: expect.any(String),
+            votes: 0,
+          },
+        });
       });
   });
   test("400: returns request must be a number", () => {
@@ -152,7 +164,11 @@ describe("GET /api/articles", () => {
       .get("/api/articles")
       .expect(200)
       .then((response) => {
-        response.body.articles.map((article) => {
+        expect(response.body.articles.length > 0).toBe(true);
+        return response;
+      })
+      .then((response) => {
+        response.body.articles.forEach((article) => {
           expect(article).toEqual(
             expect.objectContaining({
               author: expect.any(String),
@@ -220,20 +236,20 @@ describe("GET /api/articles", () => {
         expect(response.body.msg).toBe("invalid search request");
       });
   });
-  test('400: returns "invalid search request"', () => {
+  test('404: returns "not a topic"', () => {
     return request(app)
       .get("/api/articles?topic=bananas")
-      .expect(400)
+      .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("invalid search request");
+        expect(response.body.msg).toBe("not a topic");
       });
   });
   test('404: returns "no articles associated with that topic"', () => {
     return request(app)
       .get("/api/articles?topic=paper")
-      .expect(404)
+      .expect(200)
       .then((response) => {
-        expect(response.body.msg).toBe("no articles associated with topic");
+        expect(response.body.articles).toEqual([]);
       });
   });
 });
@@ -243,6 +259,10 @@ describe("GET api/articles/:article_id/comments", () => {
     return request(app)
       .get("/api/articles/1/comments")
       .expect(200)
+      .then((response) => {
+        expect(response.body.comments.length > 0).toBe(true);
+        return response;
+      })
       .then((response) => {
         response.body.comments.forEach((comment) => {
           expect(comment).toEqual(
@@ -296,7 +316,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send({
-        author: "rogersop",
+        username: "rogersop",
         body: "new comment",
       })
       .expect(201)
@@ -315,7 +335,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
     return request(app)
       .post("/api/articles/dogs/comments")
       .send({
-        author: "rogersop",
+        username: "rogersop",
         body: "new comment",
       })
       .expect(400)
@@ -323,11 +343,11 @@ describe("POST: /api/articles/:article_id/comments", () => {
         expect(response.body.msg).toBe("bad request");
       });
   });
-  test("404: returns bad request", () => {
+  test("404: article doesn't exist", () => {
     return request(app)
       .post("/api/articles/10000/comments")
       .send({
-        author: "rogersop",
+        username: "rogersop",
         body: "new comment",
       })
       .expect(404)
@@ -346,7 +366,7 @@ describe("POST: /api/articles/:article_id/comments", () => {
   test("400: returns request must contain a body", () => {
     return request(app)
       .post("/api/articles/1/comments")
-      .send({ author: "jade" })
+      .send({ username: "rogersop" })
       .expect(400)
       .then((response) => {
         expect(response.body.msg).toBe("request must contain a body");
@@ -361,9 +381,18 @@ describe("POST: /api/articles/:article_id/comments", () => {
         expect(response.body.msg).toBe("request must contain a body");
       });
   });
+  test("404: returns user doesn't exist", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({ username: "jade", body: "hello" })
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("user doesn't exist");
+      });
+  });
 });
 
-describe.only("DELETE /api/comments/:comment_id", () => {
+describe("DELETE /api/comments/:comment_id", () => {
   test("204: returns no content", () => {
     return request(app).delete("/api/comments/1").expect(204);
   });
@@ -381,6 +410,48 @@ describe.only("DELETE /api/comments/:comment_id", () => {
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("comment doesn't exist");
+      });
+  });
+});
+
+describe("GET /api/users", () => {
+  test("200: returns an array of objects with the property username", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.users).toEqual([
+          { username: "butter_bridge" },
+          { username: "icellusedkars" },
+          { username: "rogersop" },
+          { username: "lurker" },
+        ]);
+      });
+  });
+});
+
+describe("GET api/users/:username", () => {
+  test("200: returns a user object", () => {
+    return request(app)
+      .get("/api/users/butter_bridge")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.user).toEqual([
+          {
+            username: "butter_bridge",
+            name: "jonny",
+            avatar_url:
+              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+          },
+        ]);
+      });
+  });
+  test("404: user doesn't exist", () => {
+    return request(app)
+      .get("/api/users/hellomynameisjade")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("user doesn't exist");
       });
   });
 });
