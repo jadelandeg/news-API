@@ -20,6 +20,6 @@ exports.fetchUserByUserName = (username) => {
   return db
     .query(`SELECT * FROM users WHERE username = $1`, [username])
     .then((response) => {
-      return response.rows;
+      return response.rows[0];
     });
 };

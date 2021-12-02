@@ -39,7 +39,7 @@ describe("GET /api/topics", () => {
   });
 });
 
-describe("GET /api/fskfddlsfkl", () => {
+describe.only("GET /api/fskfddlsfkl", () => {
   test("404: returns not found", () => {
     return request(app)
       .get("/api/fskfddlsfkl")
@@ -436,14 +436,12 @@ describe("GET api/users/:username", () => {
       .get("/api/users/butter_bridge")
       .expect(200)
       .then((response) => {
-        expect(response.body.user).toEqual([
-          {
-            username: "butter_bridge",
-            name: "jonny",
-            avatar_url:
-              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
-          },
-        ]);
+        expect(response.body.user).toEqual({
+          username: "butter_bridge",
+          name: "jonny",
+          avatar_url:
+            "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg",
+        });
       });
   });
   test("404: user doesn't exist", () => {
@@ -452,6 +450,24 @@ describe("GET api/users/:username", () => {
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("user doesn't exist");
+      });
+  });
+});
+
+describe("PATCH /api/comments/:comment_id", () => {
+  test("200: returns updated comment", () => {
+    return request(app)
+      .patch("/api/comments/1")
+      .send({ inc_votes: 10 })
+      .expect(200)
+      .then((response) => {
+        expect(response.body.comment).toEqual({
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 26,
+          author: "butter_bridge",
+          article_id: 9,
+          created_at: expect.any(String),
+        });
       });
   });
 });

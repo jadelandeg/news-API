@@ -1,8 +1,8 @@
 const db = require("../db/connection");
 
-exports.checkIfCommentExists = (id) => {
+exports.checkIfCommentExists = (ID) => {
   return db
-    .query("SELECT * FROM comments WHERE comment_id  = $1;", [id])
+    .query("SELECT * FROM comments WHERE comment_id  = $1;", [ID])
     .then((response) => {
       console.log(response);
       if (response.rows.length === 0) {

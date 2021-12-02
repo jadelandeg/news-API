@@ -1,6 +1,7 @@
 const {
   removeComment,
   checkIfCommentExists,
+  updateComment,
 } = require("../models/comments.model");
 
 exports.deleteComment = (req, res, next) => {
@@ -12,4 +13,8 @@ exports.deleteComment = (req, res, next) => {
     .catch((err) => {
       next(err);
     });
+};
+
+exports.patchComment = (req, res, next) => {
+  updateComment;
 };
