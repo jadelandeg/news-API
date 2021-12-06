@@ -3,6 +3,7 @@ const testData = require("../db/data/test-data/index.js");
 const seed = require("../db/seeds/seed.js");
 const request = require("supertest");
 const app = require("../app");
+const { get } = require("superagent");
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -570,7 +571,7 @@ describe("PATCH : /api/articles/body/:article_id", () => {
   });
 });
 
-describe.only("PATCH /api/comments/body/:comment_id", () => {
+describe("PATCH /api/comments/body/:comment_id", () => {
   test("200: should return updated comment", () => {
     return request(app)
       .patch("/api/comments/body/1")
@@ -618,6 +619,111 @@ describe.only("PATCH /api/comments/body/:comment_id", () => {
       .expect(404)
       .then((response) => {
         expect(response.body.msg).toBe("comment doesn't exist");
+      });
+  });
+});
+
+describe("PATCH /api/users/:user_id", () => {
+  test("200: returns new user object", () => {
+    return request(app)
+      .patch("/api/users/lurker")
+      .send({ newName: "jade" })
+      .expect(200)
+      .then((response) => {
+        expect(response.body.user).toEqual({
+          username: "lurker",
+          name: "jade",
+          avatar_url:
+            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+        });
+      });
+  });
+  test("200: returns original user if sent empty request", () => {
+    return request(app)
+      .patch("/api/users/lurker")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.user).toEqual({
+          username: "lurker",
+          name: "do_nothing",
+          avatar_url:
+            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+        });
+      });
+  });
+  test("404: should return bad request", () => {
+    return request(app)
+      .patch("/api/users/jade")
+      .send({ body: "this is my new body" })
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("user doesn't exist");
+      });
+  });
+});
+
+describe("GET /api/articles/:title", () => {
+  test("200: returns article specified in search", () => {
+    return request(app)
+      .get(
+        "/api/articles/title/Living%20in%20the%20shadow%20of%20a%20great%20man"
+      )
+      .expect(200)
+      .then((response) => {
+        console.log(response);
+        expect(response.body.article).toEqual({
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: expect.any(String),
+          votes: 100,
+          article_id: 1,
+        });
+      });
+  });
+  test("404: returns not an article", () => {
+    return request(app)
+      .get("/api/articles/title/omgnotatitle")
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("article doesn't exist");
+      });
+  });
+});
+
+describe.only('POST "/api/users', () => {
+  test("201 : returns new user", () => {
+    return request(app)
+      .post("/api/users")
+      .send({
+        username: "jadelandeg",
+        name: "jade",
+        avatar_url:
+          "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+      })
+      .expect(201)
+      .then((response) => {
+        expect(response.body.user).toEqual({
+          username: "jadelandeg",
+          name: "jade",
+          avatar_url:
+            "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+        });
+      });
+  });
+  test("204 : returns user already exists", () => {
+    return request(app)
+      .post("/api/users")
+      .send({
+        username: "lurker",
+        name: "do_nothing",
+        avatar_url:
+          "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+      })
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toEqual("user already exists");
       });
   });
 });

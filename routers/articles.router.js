@@ -6,6 +6,7 @@ const {
   getComments,
   postComment,
   patchArticleBody,
+  getArticleByTitle,
 } = require("../controllers/articles.controller");
 
 articlesRouter.route("/:id").get(getArticleByID).patch(updateArticleById);
@@ -15,5 +16,7 @@ articlesRouter
   .route("/:article_id/comments")
   .get(getComments)
   .post(postComment);
+
+articlesRouter.route("/title/:title").get(getArticleByTitle);
 
 module.exports = articlesRouter;

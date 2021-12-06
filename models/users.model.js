@@ -23,3 +23,33 @@ exports.fetchUserByUserName = (username) => {
       return response.rows[0];
     });
 };
+
+exports.updateUserInfo = (ID, update) => {
+  if (!update) {
+    return db
+      .query(`SELECT * FROM users WHERE username = $1`, [ID])
+      .then((response) => {
+        return response.rows[0];
+      });
+  } else {
+    return db
+      .query(`UPDATE users SET name=$1 WHERE username = $2 RETURNING*`, [
+        update,
+        ID,
+      ])
+      .then((response) => {
+        return response.rows[0];
+      });
+  }
+};
+
+exports.createNewUser = (username, name, avatar_url) => {
+  return db
+    .query(
+      `INSERT INTO users (username, name, avatar_url) VALUES ($1, $2, $3) RETURNING*`,
+      [username, name, avatar_url]
+    )
+    .then((response) => {
+      return response.rows[0];
+    });
+};

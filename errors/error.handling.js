@@ -18,6 +18,12 @@ exports.handle23503BadRequest = (err, req, res, next) => {
     } else if (err.constraint === "comments_author_fkey") {
       res.status(404).send({ msg: "user doesn't exist" });
     }
+  } else next(err);
+};
+
+exports.hand23505Errors = (err, req, res, next) => {
+  if (err.code === "23505") {
+    res.status(400).send({ msg: "user already exists" });
   }
 };
 

@@ -27,6 +27,16 @@ exports.checkIfArticleExists = (id) => {
     });
 };
 
+exports.checkIfArticleExistsByTitle = (ID) => {
+  return db
+    .query(`SELECT * FROM articles WHERE title = $1`, [ID])
+    .then((response) => {
+      if (response.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "article doesn't exist" });
+      }
+    });
+};
+
 exports.changeArticleById = (id, votes) => {
   if (!votes) {
     return db
@@ -133,4 +143,12 @@ exports.updateArticleBody = (ID, articleBody) => {
         return response.rows[0];
       });
   }
+};
+
+exports.fetchArticleByTitle = (title) => {
+  return db
+    .query(`SELECT * FROM articles WHERE title = $1`, [title])
+    .then((response) => {
+      return response.rows[0];
+    });
 };

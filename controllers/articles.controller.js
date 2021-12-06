@@ -6,6 +6,8 @@ const {
   fetchComments,
   newComment,
   updateArticleBody,
+  fetchArticleByTitle,
+  checkIfArticleExistsByTitle,
 } = require("../models/articles.model");
 
 const { checkIfTopicExists } = require("../models/topics.model");
@@ -89,6 +91,19 @@ exports.patchArticleBody = (req, res, next) => {
       res.status(200).send({ article: response });
     })
     .catch((err) => {
+      next(err);
+    });
+};
+
+exports.getArticleByTitle = (req, res, next) => {
+  console.log("hi controller");
+  const title = req.params.title;
+  Promise.all([fetchArticleByTitle(title), checkIfArticleExistsByTitle(title)])
+    .then(([response]) => {
+      res.status(200).send({ article: response });
+    })
+    .catch((err) => {
+      console.log(err);
       next(err);
     });
 };

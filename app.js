@@ -4,6 +4,7 @@ const {
   handle23503BadRequest,
   handleCustoms,
   handle500Errors,
+  hand23505Errors,
 } = require("./errors/error.handling");
 const app = express();
 const apiRouter = require("./routers/api.router");
@@ -19,6 +20,7 @@ app.all("/*", (req, res) => {
 app.use(handle400BadRequest);
 app.use(handleCustoms);
 app.use(handle23503BadRequest);
+app.use(hand23505Errors);
 app.use(handle500Errors);
 
 module.exports = app;
