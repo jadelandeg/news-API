@@ -13,7 +13,7 @@ app.use(express.json());
 
 app.use("/api", apiRouter);
 
-app.use("/", (req, res) => {
+app.route("/", (req, res) => {
   res.status(200).send("welcome to my news API");
 });
 
