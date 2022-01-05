@@ -692,7 +692,7 @@ describe("GET /api/articles/:title", () => {
   });
 });
 
-describe.only('POST "/api/users', () => {
+describe('POST "/api/users', () => {
   test("201 : returns new user", () => {
     return request(app)
       .post("/api/users")
