@@ -2,13 +2,13 @@
 
 Welcome to my News API!
 
-I created this app to practice using new technology. This API is used to access news data from a database. I am trying to mimic the building of a backend service that would provide this information to the front end.
+This app was created to practice using new technology. It is a backend API service that is used to access news data from a database and provide the information to the frontend
 
-- Link to my hosted API: https://jade-landeg-news-api.herokuapp.com
+- Link to hosted API: https://jade-landeg-news-api.herokuapp.com
 
-My database is PSQL and I am interacting with it using node-postgres. I have created many endpoints in order for you to see articles, comments and users. You can edit existing or post new comments, articles and users. A full list of endpoints can be found at https://jade-landeg-news-api.herokuapp.com/api.
+The database uses node-postgres to interact with PSQL. There are many endpoints in order for you to see articles, comments and users. You can edit existing or post new comments, articles and users. A full list of endpoints can be found at https://jade-landeg-news-api.herokuapp.com/api.
 
-- Cloning my repo :
+- Cloning the repo :
 
   - Write "git clone https://github.com/jadelandeg/news-API.git" in your terminal
 
@@ -18,11 +18,20 @@ My database is PSQL and I am interacting with it using node-postgres. I have cre
   - Postgres must be 14.0 or higher
 
 - Installing dependencies :
-  Run NPM i to install the dependencies listed below: - dotenv - express - jest - jest-sorted - pg - pg-format - sorted - supertest
+  Run NPM i to install the dependencies listed below:
+
+  - dotenv
+  - express
+  - jest
+  - jest-sorted
+  - pg
+  - pg-format
+  - sorted
+  - supertest
 
 - Run NPM seed to seed a new local database
 
-- Run NPM test to run all of my tests, made using jest and supertest
+- Run NPM test to run all tests, made using jest and supertest
 
 - Create two files to allow the app to change between development and test environments
 
