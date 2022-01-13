@@ -2,7 +2,7 @@
 
 Welcome to my News API!
 
-This app was created to practice using new technology. It is a backend API service that is used to access news data from a database and provide the information to the frontend
+This API was created to practice using new technology. It is a backend API service that is used to access news data from a database and provide the information to the frontend
 
 - Link to hosted API: https://jade-landeg-news-api.herokuapp.com
 
